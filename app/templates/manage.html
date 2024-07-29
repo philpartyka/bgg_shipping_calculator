@@ -11,13 +11,10 @@
                     <th>Condition</th>
                     <th>Pounds</th>
                     <th>Ounces</th>
-                    <th>Inner L</th>
-                    <th>Inner W</th>
-                    <th>Inner H</th>
-                    <th>Outer L</th>
-                    <th>Outer W</th>
-                    <th>Outer H</th>
-                    <th>Actions</th>
+                    <th>L</th>
+                    <th>W</th>
+                    <th>H</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -28,12 +25,9 @@
                     <td>{{ game.condition }}</td>
                     <td><input type="text" name="pounds_{{ game.id }}" value="{{ game.pounds }}" size="2"></td>
                     <td><input type="text" name="ounces_{{ game.id }}" value="{{ game.ounces }}" size="2"></td>
-                    <td><input type="text" name="inner_length_{{ game.id }}" value="{{ game.inner_length }}" size="2"></td>
-                    <td><input type="text" name="inner_width_{{ game.id }}" value="{{ game.inner_width }}" size="2"></td>
-                    <td><input type="text" name="inner_height_{{ game.id }}" value="{{ game.inner_height }}" size="2"></td>
-                    <td><input type="text" name="outer_length_{{ game.id }}" value="{{ game.outer_length }}" size="2"></td>
-                    <td><input type="text" name="outer_width_{{ game.id }}" value="{{ game.outer_width }}" size="2"></td>
-                    <td><input type="text" name="outer_height_{{ game.id }}" value="{{ game.outer_height }}" size="2"></td>
+                    <td><input type="text" name="length_{{ game.id }}" value="{{ game.length }}" size="2"></td>
+                    <td><input type="text" name="width_{{ game.id }}" value="{{ game.width }}" size="2"></td>
+                    <td><input type="text" name="height_{{ game.id }}" value="{{ game.height }}" size="2"></td>
                     <td><button type="submit" name="save" value="{{ game.id }}">Save</button></td>
                 </tr>
                 {% endfor %}

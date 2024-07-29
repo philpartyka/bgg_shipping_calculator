@@ -63,12 +63,9 @@ def manage():
             if game:
                 game.pounds = float(request.form.get(f'pounds_{game.id}', 0.0))
                 game.ounces = float(request.form.get(f'ounces_{game.id}', 0.0))
-                game.inner_length = float(request.form.get(f'inner_length_{game.id}', 0.0))
-                game.inner_width = float(request.form.get(f'inner_width_{game.id}', 0.0))
-                game.inner_height = float(request.form.get(f'inner_height_{game.id}', 0.0))
-                game.outer_length = float(request.form.get(f'outer_length_{game.id}', 0.0))
-                game.outer_width = float(request.form.get(f'outer_width_{game.id}', 0.0))
-                game.outer_height = float(request.form.get(f'outer_height_{game.id}', 0.0))
+                game.length = float(request.form.get(f'length_{game.id}', 0.0))
+                game.width = float(request.form.get(f'width_{game.id}', 0.0))
+                game.height = float(request.form.get(f'height_{game.id}', 0.0))
                 db.session.commit()
                 flash(f'Game {game.title} updated successfully!', 'success')
             else:
