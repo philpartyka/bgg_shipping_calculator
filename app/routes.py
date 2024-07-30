@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app
-from app.forms import LoginForm
+from app.forms import LoginForm, GameStats
 from flask_login import current_user, login_user
 import sqlalchemy as sa
 from app import db
@@ -53,27 +53,45 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-@app.route('/manage')
+# @app.route('/manage')
+# @login_required
+# def manage():
+#     gameForm = GameStats()
+#     if request.method == 'POST':
+#         game_id = request.form.get('save')
+#         if game_id:
+#             game = Games.query.get(game_id)
+#             if game:
+#                 game.pounds = float(request.form.get(f'pounds_{game.id}', 0.0))
+#                 game.ounces = float(request.form.get(f'ounces_{game.id}', 0.0))
+#                 game.length = float(request.form.get(f'length_{game.id}', 0.0))
+#                 game.width = float(request.form.get(f'width_{game.id}', 0.0))
+#                 game.height = float(request.form.get(f'height_{game.id}', 0.0))
+#                 db.session.commit()
+#                 flash(f'Game {game.title} updated successfully!', 'success')
+#             else:
+#                 flash('Game not found!', 'danger')
+#         return redirect(url_for('manage'))
+    
+#     games = Games.query.all()
+#     return render_template('manage.html', title='Site Management', games=games, form=gameForm)
+@app.route('/manage', methods=['GET', 'POST'])
 @login_required
 def manage():
-    if request.method == 'POST':
-        game_id = request.form.get('save')
-        if game_id:
-            game = Games.query.get(game_id)
-            if game:
-                game.pounds = float(request.form.get(f'pounds_{game.id}', 0.0))
-                game.ounces = float(request.form.get(f'ounces_{game.id}', 0.0))
-                game.length = float(request.form.get(f'length_{game.id}', 0.0))
-                game.width = float(request.form.get(f'width_{game.id}', 0.0))
-                game.height = float(request.form.get(f'height_{game.id}', 0.0))
-                db.session.commit()
-                flash(f'Game {game.title} updated successfully!', 'success')
-            else:
-                flash('Game not found!', 'danger')
-        return redirect(url_for('manage'))
-    
     games = Games.query.all()
-    return render_template('manage.html', title='Site Management', games=games)
+    forms = {}
+
+    for game in games:
+        form = GameStats(obj=game, prefix=str(game.id))
+        forms[game.id] = form
+
+        if form.validate_on_submit():
+            form.populate_obj(game)
+            db.session.commit()
+            flash(f'Game {game.title} updated successfully!', 'success')
+            return redirect(url_for('manage'))
+
+    return render_template('manage.html', title='Site Management', games=games, forms=forms)
 @app.route('/boxes')
 @login_required
 def boxes():
