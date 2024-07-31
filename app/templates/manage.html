@@ -2,36 +2,38 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
-    <form method="post">
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Listing ID</th>
-                    <th>Condition</th>
-                    <th>Pounds</th>
-                    <th>Ounces</th>
-                    <th>L</th>
-                    <th>W</th>
-                    <th>H</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for game in games %}
-                <tr>
-                    <td>{{ game.title }}</td>
-                    <td>{{ game.bgg_listing_id }}</td>
-                    <td>{{ game.condition }}</td>
-                    <td><input type="text" name="pounds_{{ game.id }}" value="{{ game.pounds }}" size="2"></td>
-                    <td><input type="text" name="ounces_{{ game.id }}" value="{{ game.ounces }}" size="2"></td>
-                    <td><input type="text" name="length_{{ game.id }}" value="{{ game.length }}" size="2"></td>
-                    <td><input type="text" name="width_{{ game.id }}" value="{{ game.width }}" size="2"></td>
-                    <td><input type="text" name="height_{{ game.id }}" value="{{ game.height }}" size="2"></td>
-                    <td><button type="submit" name="save" value="{{ game.id }}">Save</button></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>BGG Listing</th>
+                <th>Cond</th>
+                <th>Pds</th>
+                <th>Oz</th>
+                <th>L</th>
+                <th>W</th>
+                <th>H</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for game in games %}
+                <form action="" method="post" novalidate>
+                    {{ forms[game.id].csrf_token }}
+                    {{ forms[game.id].game_id(value=game.id) }}
+                    <tr>
+                        <td>{{ game.title }}</td>
+                        <td>{{ game.bgg_listing_id }}</td>
+                        <td>{{ game.condition }}</td>
+                        <td>{{ forms[game.id].pounds(size=6, value='{:.1f}'.format(game.pounds).rstrip('0').rstrip('.')) }}</td>
+                        <td>{{ forms[game.id].ounces(size=6, value='{:.1f}'.format(game.ounces).rstrip('0').rstrip('.')) }}</td>
+                        <td>{{ forms[game.id].length(size=6, value='{:.1f}'.format(game.length).rstrip('0').rstrip('.')) }}</td>
+                        <td>{{ forms[game.id].width(size=6, value='{:.1f}'.format(game.width).rstrip('0').rstrip('.')) }}</td>
+                        <td>{{ forms[game.id].height(size=6, value='{:.1f}'.format(game.height).rstrip('0').rstrip('.')) }}</td>
+                        <td>{{ forms[game.id].update() }}</td>
+                    </tr>
+                </form>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
