@@ -1,0 +1,38 @@
+{% extends "base_manage.html" %}
+
+{% block content %}
+    <table>
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>BGG Listing</th>
+                <th>Cond</th>
+                <th>Pds</th>
+                <th>Oz</th>
+                <th>L</th>
+                <th>W</th>
+                <th>H</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for game in games %}
+                <form action="" method="post" novalidate>
+                    {{ forms[game.id].csrf_token }}
+                    {{ forms[game.id].game_id(value=game.id) }}
+                    <tr>
+                        <td>{{ game.title }}</td>
+                        <td>{{ game.bgg_listing_id }}</td>
+                        <td>{{ game.condition }}</td>
+                        <td>{{ forms[game.id].pounds(size=6, value=game.pounds|format_number) }}</td>
+                        <td>{{ forms[game.id].ounces(size=6, value=game.ounces|format_number) }}</td>
+                        <td>{{ forms[game.id].length(size=6, value=game.length|format_number) }}</td>
+                        <td>{{ forms[game.id].width(size=6, value=game.width|format_number) }}</td>
+                        <td>{{ forms[game.id].height(size=6, value=game.height|format_number) }}</td>
+                        <td>{{ forms[game.id].update() }}</td>
+                    </tr>
+                </form>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

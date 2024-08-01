@@ -1,39 +1,70 @@
 {% extends "base_manage.html" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Game</th>
-                <th>BGG Listing</th>
-                <th>Cond</th>
-                <th>Pds</th>
-                <th>Oz</th>
-                <th>L</th>
-                <th>W</th>
-                <th>H</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for game in games %}
-                <form action="" method="post" novalidate>
-                    {{ forms[game.id].csrf_token }}
-                    {{ forms[game.id].game_id(value=game.id) }}
-                    <tr>
-                        <td>{{ game.title }}</td>
-                        <td>{{ game.bgg_listing_id }}</td>
-                        <td>{{ game.condition }}</td>
-                        <td>{{ forms[game.id].pounds(size=6, value='{:.1f}'.format(game.pounds).rstrip('0').rstrip('.')) }}</td>
-                        <td>{{ forms[game.id].ounces(size=6, value='{:.1f}'.format(game.ounces).rstrip('0').rstrip('.')) }}</td>
-                        <td>{{ forms[game.id].length(size=6, value='{:.1f}'.format(game.length).rstrip('0').rstrip('.')) }}</td>
-                        <td>{{ forms[game.id].width(size=6, value='{:.1f}'.format(game.width).rstrip('0').rstrip('.')) }}</td>
-                        <td>{{ forms[game.id].height(size=6, value='{:.1f}'.format(game.height).rstrip('0').rstrip('.')) }}</td>
-                        <td>{{ forms[game.id].update() }}</td>
-                    </tr>
-                </form>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div style="display: flex; justify-content: center;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>BGG Listing</th>
+                    <th>Cond</th>
+                    <th>Pds</th>
+                    <th>Oz</th>
+                    <th>L</th>
+                    <th>W</th>
+                    <th>H</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                    <form action="" method="post" novalidate>
+                        {{ forms[game.id].csrf_token }}
+                        {{ forms[game.id].game_id(value=game.id) }}
+                        <tr>
+                            <td>{{ game.title }}</td>
+                            <td>{{ game.bgg_listing_id }}</td>
+                            <td>{{ game.condition }}</td>
+                            <td>{{ forms[game.id].pounds(size=6, value=game.pounds|format_number) }}</td>
+                            <td>{{ forms[game.id].ounces(size=6, value=game.ounces|format_number) }}</td>
+                            <td>{{ forms[game.id].length(size=6, value=game.length|format_number) }}</td>
+                            <td>{{ forms[game.id].width(size=6, value=game.width|format_number) }}</td>
+                            <td>{{ forms[game.id].height(size=6, value=game.height|format_number) }}</td>
+                            <td>
+                                {% if game.length == 0 and game.width == 0 and game.height == 0 %}
+                                    {{ forms[game.id].preset(class="preset-select") }}
+                                {% endif %}
+                            </td>
+                            <td>{{ forms[game.id].update() }}</td>
+                        </tr>
+                    </form>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const presetSelects = document.querySelectorAll('.preset-select');
+            presetSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const presetId = this.value;
+                    if (presetId != 0) {
+                        const row = this.closest('tr');
+                        const lengthInput = row.querySelector('.length-input');
+                        const widthInput = row.querySelector('.width-input');
+                        const heightInput = row.querySelector('.height-input');
+    
+                        fetch(`/get_preset/${presetId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                lengthInput.value = data.length;
+                                widthInput.value = data.width;
+                                heightInput.value = data.height;
+                            });
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

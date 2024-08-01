@@ -1,14 +1,23 @@
-from flask import render_template, flash, redirect, url_for, request
-from app import app
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from app.forms import LoginForm, GameStats
 from flask_login import current_user, login_user
 import sqlalchemy as sa
-from app import db
-from app.models import User, Games
+from app import app, db
+from app.models import User, Games, GamePreset
 from flask_login import logout_user
 from flask_login import login_required
 from urllib.parse import urlsplit
 
+def format_number(value):
+    try:
+        # Convert to float and format with 2 decimal places
+        formatted = '{:.2f}'.format(float(value))
+        # Remove trailing zeros, but keep one zero after decimal point if needed
+        formatted = formatted.rstrip('0').rstrip('.') if '.' in formatted else formatted
+        return formatted
+    except ValueError:
+        return value  # Return original value if conversion fails
+    
 @app.route('/')
 @app.route('/index')
 def index():
@@ -53,45 +62,46 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-# @app.route('/manage')
-# @login_required
-# def manage():
-#     gameForm = GameStats()
-#     if request.method == 'POST':
-#         game_id = request.form.get('save')
-#         if game_id:
-#             game = Games.query.get(game_id)
-#             if game:
-#                 game.pounds = float(request.form.get(f'pounds_{game.id}', 0.0))
-#                 game.ounces = float(request.form.get(f'ounces_{game.id}', 0.0))
-#                 game.length = float(request.form.get(f'length_{game.id}', 0.0))
-#                 game.width = float(request.form.get(f'width_{game.id}', 0.0))
-#                 game.height = float(request.form.get(f'height_{game.id}', 0.0))
-#                 db.session.commit()
-#                 flash(f'Game {game.title} updated successfully!', 'success')
-#             else:
-#                 flash('Game not found!', 'danger')
-#         return redirect(url_for('manage'))
-    
-#     games = Games.query.all()
-#     return render_template('manage.html', title='Site Management', games=games, form=gameForm)
 @app.route('/manage', methods=['GET', 'POST'])
 @login_required
 def manage():
+    app.jinja_env.filters['format_number'] = format_number
     games = Games.query.all()
+    presets = GamePreset.query.all()
     forms = {}
 
     for game in games:
         form = GameStats(obj=game, prefix=str(game.id))
+        form.preset.choices = [
+            (0, 'Select preset')
+        ] + [
+            (p.id, f"{p.name} ({p.length}x{p.width}x{p.height})") 
+            for p in presets
+        ]
         forms[game.id] = form
 
         if form.validate_on_submit():
             form.populate_obj(game)
+            if form.preset.data and form.preset.data != 0:
+                preset = GamePreset.query.get(form.preset.data)
+                if preset:
+                    game.length = preset.length
+                    game.width = preset.width
+                    game.height = preset.height
             db.session.commit()
             flash(f'Game {game.title} updated successfully!', 'success')
             return redirect(url_for('manage'))
 
     return render_template('manage.html', title='Site Management', games=games, forms=forms)
+
+@app.route('/get_preset/<int:preset_id>')
+def get_preset(preset_id):
+    preset = GamePreset.query.get_or_404(preset_id)
+    return jsonify({
+        'length': preset.length,
+        'width': preset.width,
+        'height': preset.height
+    })
 @app.route('/boxes')
 @login_required
 def boxes():
