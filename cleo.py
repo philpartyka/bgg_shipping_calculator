@@ -103,9 +103,9 @@ def monitor_tick():
                 print(f"{current_time} - Initial tick: {current_tick}")
             elif current_tick != previous_tick:
                 print(f"{current_time} - Tick changed from {previous_tick} to {current_tick}")
-                if current_tick > 100000:
+                if current_tick > 92000:
                     play_sound()  # Play sound when tick changes and is above 100000
-                    message = f"Alert: Tick is above 100000. Current tick: {current_tick}"
+                    message = f"Alert: Tick is above 92000. Current tick: {current_tick}"
                     send_telegram_message(message)  # Send Telegram notification
             
             previous_tick = current_tick
