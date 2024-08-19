@@ -6,3 +6,4 @@ I built this tool to help potential customers estimate how much shipping would b
 
 - Python
 - Flask library
+- SQL database
